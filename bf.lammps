@@ -1,0 +1,125 @@
+##################################################################
+#					CODIGO BASICO SFM        #
+
+
+############################## PARAMETERS ########################
+
+variable 	f file parameters_sfm.txt
+
+variable	tau equal ${f} 
+next 		f
+variable 	A equal ${f}
+next 		f
+variable 	B equal ${f}
+next 		f 
+variable 	Kcomp equal ${f}
+next 		f 
+variable 	KAPPA equal ${f}
+next 		f 
+variable 	KAPPAWALL equal ${f}
+
+#########################################################################
+
+variable imax equal 5
+variable i loop 5 ${imax}
+label start_of_loop1
+print "ITERATION i = $i"    #Loop de velocidad de deseo
+
+variable jmax equal 2
+variable j loop 1 ${jmax}
+label start_of_loop2
+print "ITERATION j = $j"    # Loop de iteraciones
+
+
+variable side equal 20
+variable doorsize equal 1.84 
+
+variable x0 equal 0.0
+variable x1 equal (v_side/2.0)-(v_doorsize/2.0)
+variable x2 equal (v_side/2.0)+(v_doorsize/2.0)
+variable x3 equal v_side
+
+
+variable y0 equal 0.0
+variable y1 equal v_side  # Parenthesis required in divisions
+variable y2 equal v_side+0.12
+variable y3 equal v_side+v_side
+
+variable z1 equal -1
+variable z2 equal 1
+
+variable        vd equal        $i
+
+dimension       2
+boundary        p f p
+
+units           si
+atom_style      sphere
+lattice         sq 1.3 origin 0.5 0.5 0.0  
+
+region          street block ${x0} ${x3} ${y0} ${y1} ${z1} ${z2} units box
+region          entrance block ${x1} ${x2} ${y1} ${y2} ${z1} ${z2} units box
+region			shop block ${x0} ${x3} ${y1} ${y3} ${z1} ${z2} units box
+region          allregions  union 3 street entrance shop
+region 			end block ${x0} ${x3} 30.0 40.0 ${z1} ${z2} units box 
+
+create_box      1 allregions
+read_data		ci/vd${vd}/ci_vd${vd}_it${j}.txt add append
+set             atom * mass 70.0
+set             atom * diameter 0.46
+
+velocity        all create 1e24 $j dist gaussian	
+comm_modify     vel yes           
+
+############################## PARAMETERS ##############################
+#variable	vd equal        $i
+
+variable	quedaron equal count(all,street)
+
+##################################################################
+# USER-PANIC PACKAGES
+##################################################################
+
+pair_style   panic/table/custom linear 5000 ${vd} ${tau} ${A} ${B} ${Kcomp} ${KAPPA} ${KAPPAWALL}
+pair_coeff   * * black_friday.table PP 0.88
+
+################## OUTPUT ################## 
+#dump	    1  all custom 5000 config_black_friday id x y vx vy diameter
+
+#dump        6 all movie 500 bf_vd${vd}.mp4 type type &
+#            axes no 0.8 0.02 view 0 0 zoom 2 adiam 0.46 center s 0.5 0.5 0.5
+
+################## Integracion numerica ################## 
+fix           1 all nve/limit 0.001
+thermo        2000
+thermo_style  custom step v_quedaron # tiene que haber un thermo antes, "step" es necesario
+
+
+timestep   0.0001
+variable   nmax equal 2000000
+variable   n loop ${nmax}
+label	   start_of_loop
+run        500
+delete_atoms  region end compress no
+variable      t equal 0.05*$n
+
+
+print "$t ${quedaron} $j" append raw_discharge.txt
+
+if "${quedaron} < 35 " then "jump SELF break"
+next n
+jump SELF start_of_loop
+
+#	TERMINACION DEL PROCESO
+label break
+
+#print "${vd} $j $t" append te.txt
+
+clear
+variable n delete
+next j
+jump SELF start_of_loop2
+
+clear
+next i
+jump SELF start_of_loop1

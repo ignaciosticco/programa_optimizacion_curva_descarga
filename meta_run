@@ -1,0 +1,11 @@
+#!/bin/bash
+
+start=$SECONDS
+
+python3 optimize_parameters.py
+
+duration=$(( SECONDS - start ))
+duration_min=$((duration/60))
+
+notify ignaciosticco@gmail.com Terminacion optimizacion black friday duracion=$duration_min min
+
