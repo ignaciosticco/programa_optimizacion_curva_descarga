@@ -55,7 +55,7 @@ boundary        p f p
 
 units           si
 atom_style      sphere
-lattice         sq 1.3 origin 0.5 0.5 0.0  
+#lattice         sq 1.3 origin 0.5 0.5 0.0  
 
 region          street block ${x0} ${x3} ${y0} ${y1} ${z1} ${z2} units box
 region          entrance block ${x1} ${x2} ${y1} ${y2} ${z1} ${z2} units box
@@ -64,9 +64,9 @@ region          allregions  union 3 street entrance shop
 region 			end block ${x0} ${x3} 30.0 40.0 ${z1} ${z2} units box 
 
 create_box      1 allregions
-read_data		ci/vd${vd}/ci_vd${vd}_it${j}.txt add append
-set             atom * mass 70.0
-set             atom * diameter 0.46
+read_data		ci_cdc/ci_it${j}_black_people.txt add append
+set             atom * mass 79.5
+#set             atom * diameter 0.46
 
 velocity        all create 1e24 $j dist gaussian	
 comm_modify     vel yes           
@@ -81,7 +81,7 @@ variable	quedaron equal count(all,street)
 ##################################################################
 
 pair_style   panic/table/custom linear 5000 ${vd} ${tau} ${A} ${B} ${Kcomp} ${KAPPA} ${KAPPAWALL}
-pair_coeff   * * black_friday.table PP 0.88
+pair_coeff   * * black_friday_door_black_people.table PP 0.88
 
 ################## OUTPUT ################## 
 #dump	    1  all custom 5000 config_black_friday id x y vx vy diameter
