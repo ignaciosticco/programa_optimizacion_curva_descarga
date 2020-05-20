@@ -25,7 +25,7 @@ variable i loop 5 ${imax}
 label start_of_loop1
 print "ITERATION i = $i"    #Loop de velocidad de deseo
 
-variable jmax equal 2
+variable jmax equal 5
 variable j loop 1 ${jmax}
 label start_of_loop2
 print "ITERATION j = $j"    # Loop de iteraciones
@@ -106,7 +106,7 @@ variable      t equal 0.05*$n
 
 print "$t ${quedaron} $j" append raw_discharge.txt
 
-if "${quedaron} < 35 " then "jump SELF break"
+if "${quedaron} < 200 " then "jump SELF break"
 next n
 jump SELF start_of_loop
 

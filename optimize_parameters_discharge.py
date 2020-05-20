@@ -128,11 +128,11 @@ def calcula_mean_discharge():
 	Toma el archivo que sale de la simulacion: raw_discharge.txt
 	'''
 	os.system("rm mean_discharge.txt")
-	os.system("python3 procesa_descarga.py")
+	os.system("python3 procesa_descarga_2.0.py")
 
 	data = pd.read_csv("mean_discharge.txt", delimiter='\t')
-	mean_discharge = data["1.mean_ped_inside_simulated"].tolist()
-	std_discharge = data["2.std_ped_inside_simulated"].tolist()
+	mean_discharge = data["0.mean_time"].tolist()
+	std_discharge = data["1.std_time"].tolist()
 	return mean_discharge,std_discharge
 
 
@@ -185,8 +185,8 @@ def output_record(agent_record,discharge_record,std_discharge_record,delta_recor
 
 def load_discharge_empirical():
 	data_empirical = pd.read_csv("discharge_empirical.txt",sep="\t")
-	ped_inside_empirical = data_empirical["1.ped_inside_empirical"].to_list()
-	return ped_inside_empirical
+	time_empirical = data_empirical["0.time"].to_list()
+	return time_empirical
 
 def imprime_estado(iteracion):
 	'''
